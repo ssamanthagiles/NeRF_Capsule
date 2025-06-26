@@ -2,7 +2,6 @@
 <html>
 <head>
   <style>
-
     nav {
       padding: 20px;;
       color: rgb(150, 146, 146);
@@ -14,7 +13,7 @@
       justify-content: space-evenly;
     }
 
-  nav a {
+    nav a {
   text-decoration: none; /* removes underline */
   color: rgb(150, 146, 146); /* sets the text color */
   margin: 0 15px;
@@ -24,16 +23,23 @@
 
 nav a:hover {
   color: #ffffff; /* changes color on hover */
+
+}
+nav .logo{
+  color: rgb(65, 1, 84);
+  margin: 30px;
+  font-weight: bold;
 }
 
   </style>
 
     <nav>
-      <h2>InternVerse</h2> 
+      <h2 class="logo">InternVerse</h2> 
       <a href="index.html">Home</a>
        <a href="aboutus.html">About Us</a>
       <a href="buildyourown.html">Build Your Own NeRF</a>
     </nav>
+
 
   <main>
     <div style="height: 30px;"></div>
@@ -90,114 +96,143 @@ nav a:hover {
   </style>
 </head>
 <body>
+<form action="submit.html" method="post" enctype="multipart/form-data">
+  <label for="name">Name:</label>
+  <input type="text" id="name" name="name" required>
+  
+  <label for="organization">Organization Within Microsoft:</label>
+  <textarea id="organization" name="organization" rows="4" required></textarea>
+  
+  <label for="location">Location:</label>
+  <textarea id="location" name="location" rows="4"></textarea>
 
-  <form action="submit.html" method="post">
-    <label for="name">Name:</label>
-    <input type="text" id="name" name="name" required>
-    
-    <label for="organization">Organization Within Microsoft:</label>
-    <textarea id="organization" name="organization" rows="4" required></textarea>
-    </select>
-
-    
-    <label for="location">Location:</label>
-    <textarea id="location" name="location" rows="4"></textarea>
-
-
-    <!-- Drag and drop file upload section -->
-  <style>
-    .drop-zone {
-      width: 90%;
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 40px;
-      border: 3px dashed #459ed4;
-      border-radius: 10px;
-      text-align: center;
-      font-family: 'Segoe UI', sans-serif;
-      color: #555;
-      background-color: #f9f9f9;
-    }
-
-    .drop-zone.dragover {
-      background-color: #e0f7ff;
-      border-color: #005A9E;
-    }
-
-    .preview {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-top: px;
-      gap: 10px;
-    }
-
-    .preview img {
-      width: 150px;
-      height: 150px;
-      object-fit: cover;
-      border: 2px solid #ccc;
-      border-radius: 8px;
-    }
-  </style>
-
-
-  <label for="Upload">Upload Folder of 30-50 Photos:</label>
+  <label for="Upload">Upload 30-50 Photos or a Video:</label>
   <div class="drop-zone" id="dropZone">
     <p>Drag + Drop Here</p>
-    <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
+    <input type="file" id="fileInput" name="media" multiple accept="image/*,video/*" style="display: none;">
   </div>
 
   <div class="preview" id="preview"></div>
+<button type="button" id="reconstructBtn">Reconstruct in 3D!</button>
 
-  <script>
-    const dropZone = document.getElementById('dropZone');
-    const fileInput = document.getElementById('fileInput');
-    const preview = document.getElementById('preview');
+ <script>
+document.getElementById('reconstructBtn').addEventListener('click', async function() {
+  const fileInput = document.getElementById('fileInput');
+  const files = fileInput.files;
+  if (!files.length) {
+    alert('Please select a file!');
+    return;
+  }
+  const formData = new FormData();
+  for (let i = 0; i < files.length; i++) {
+    formData.append('files', files[i]);
+  }
 
-    dropZone.addEventListener('click', () => fileInput.click());
+  // Send to FastAPI backend
+  const response = await fetch('http://127.0.0.1:8000/upload/', {
+    method: 'POST',
+    body: formData
+  });
 
-    dropZone.addEventListener('dragover', (e) => {
-      e.preventDefault();
-      dropZone.classList.add('dragover');
+  if (response.ok) {
+    // Optionally handle backend response here
+    window.location.href = 'result.html';
+  } else {
+    alert('Upload failed!');
+  }
+});
+</script>
+
+</form>
+
+<style>
+  .drop-zone {
+    width: 90%;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 40px;
+    border: 3px dashed #459ed4;
+    border-radius: 10px;
+    text-align: center;
+    font-family: 'Segoe UI', sans-serif;
+    color: #555;
+    background-color: #f9f9f9;
+  }
+  .drop-zone.dragover {
+    background-color: #e0f7ff;
+    border-color: #005A9E;
+  }
+  .preview {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .preview img, .preview video {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+  }
+</style>
+
+<script>
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const preview = document.getElementById('preview');
+
+  dropZone.addEventListener('click', () => fileInput.click());
+
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+  });
+
+  fileInput.addEventListener('change', () => {
+    handleFiles(fileInput.files);
+  });
+
+  function handleFiles(files) {
+    const fileArray = Array.from(files).slice(0, 50); // Limit to 50
+    preview.innerHTML = ''; // Clear previous previews
+
+    fileArray.forEach(file => {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          preview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      } else if (file.type.startsWith('video/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const video = document.createElement('video');
+          video.src = e.target.result;
+          video.controls = true;
+          preview.appendChild(video);
+        };
+        reader.readAsDataURL(file);
+      }
     });
-
-    dropZone.addEventListener('dragleave', () => {
-      dropZone.classList.remove('dragover');
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-      e.preventDefault();
-      dropZone.classList.remove('dragover');
-      handleFiles(e.dataTransfer.files);
-    });
-
-    fileInput.addEventListener('change', () => {
-      handleFiles(fileInput.files);
-    });
-
-    function handleFiles(files) {
-      const fileArray = Array.from(files).slice(0, 50); // Limit to 50
-      preview.innerHTML = ''; // Clear previous previews
-
-      fileArray.forEach(file => {
-        if (file.type.startsWith('image/')) {
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            preview.appendChild(img);
-          };
-          reader.readAsDataURL(file);
-        }
-      });
-    }
-  </script>
+  }
+</script>
 
 
 <div style="height: 20px;"></div>
-
-<!-- Creating form submit button -->
 
     <style>
   button {
@@ -217,9 +252,6 @@ nav a:hover {
     background-color: #b9b9b9;
   }
 </style>
-<button type="submit">Reconstruct in 3D!</button>
-<div style="position:absolute; bottom:0; left:50px;">
-  <img src="firstimage.jpg" style="width:400px; height:500px;">
 </div>
 </body>
 </html>

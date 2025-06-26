@@ -2,7 +2,6 @@
 <html>
 <head>
   <style>
-
     nav {
       padding: 20px;;
       color: rgb(150, 146, 146);
@@ -24,25 +23,26 @@
 
 nav a:hover {
   color: #ffffff; /* changes color on hover */
+
 }
-
-
+nav .logo{
+  color: rgb(65, 1, 84);
+  margin: 30px;
+  font-weight: bold;
+}
 
   </style>
 
     <nav>
-      <h2>InternVerse</h2> 
+      <h2 class="logo">InternVerse</h2> 
       <a href="index.html">Home</a>
        <a href="aboutus.html">About Us</a>
       <a href="buildyourown.html">Build Your Own NeRF</a>
     </nav>
 <body>
   <main>
-    <div style="height: 50px;"></div>
-    <img src="newlogo.png" alt="InternVerse Logo" style="display: block; margin: 0 auto";>
-
-
-
+    
+    <img src="logo.png" alt="InternVerse Logo" style="display: block; margin: 0 auto; width: 700px; height: auto; object-fit: cover;">
 
   <style>
     .image-row {
@@ -76,19 +76,21 @@ nav a:hover {
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      width: 300px
     }
     button:hover {
       background-color: #c5c5c5;
     }
   </style>
   <div style="height: 50px;"></div>
-  <button onclick="window.location.href='buildyourown.html';">
-  Build Your Own Now
+  <button onclick="window.location.href='buildyourown.html';" style="font-size: 25px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+ <b>
+    Build Your Own Now
+ </b>
 </button>
+  <div style="height: 70px;"></div>
 </main>
   </body>
-
-<div style="height: 300px;"></div>
 
 
 
