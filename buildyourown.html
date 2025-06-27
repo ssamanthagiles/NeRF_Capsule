@@ -115,32 +115,10 @@ nav .logo{
   <div class="preview" id="preview"></div>
 <button type="button" id="reconstructBtn">Reconstruct in 3D!</button>
 
- <script>
-document.getElementById('reconstructBtn').addEventListener('click', async function() {
-  const fileInput = document.getElementById('fileInput');
-  const files = fileInput.files;
-  if (!files.length) {
-    alert('Please select a file!');
-    return;
-  }
-  const formData = new FormData();
-  for (let i = 0; i < files.length; i++) {
-    formData.append('files', files[i]);
-  }
-
-  // Send to FastAPI backend
-  const response = await fetch('http://127.0.0.1:8000/upload/', {
-    method: 'POST',
-    body: formData
-  });
-
-  if (response.ok) {
-    // Optionally handle backend response here
+<script>
+  document.getElementById('reconstructBtn').addEventListener('click', function() {
     window.location.href = 'result.html';
-  } else {
-    alert('Upload failed!');
-  }
-});
+  });
 </script>
 
 </form>
@@ -204,31 +182,42 @@ document.getElementById('reconstructBtn').addEventListener('click', async functi
     handleFiles(fileInput.files);
   });
 
-  function handleFiles(files) {
-    const fileArray = Array.from(files).slice(0, 50); // Limit to 50
-    preview.innerHTML = ''; // Clear previous previews
+ function handleFiles(files) {
+  const fileArray = Array.from(files).slice(0, 50); // Limit to 50
+  preview.innerHTML = ''; // Clear previous previews
 
-    fileArray.forEach(file => {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = document.createElement('img');
-          img.src = e.target.result;
-          preview.appendChild(img);
-        };
-        reader.readAsDataURL(file);
-      } else if (file.type.startsWith('video/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const video = document.createElement('video');
-          video.src = e.target.result;
-          video.controls = true;
-          preview.appendChild(video);
-        };
-        reader.readAsDataURL(file);
-      }
-    });
+  fileArray.forEach(file => {
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        preview.appendChild(img);
+      };
+      reader.readAsDataURL(file);
+    } else if (file.type.startsWith('video/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const video = document.createElement('video');
+        video.src = e.target.result;
+        video.controls = true;
+        preview.appendChild(video);
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Save the first uploaded file as a Data URL for result.html
+  if (fileArray.length > 0) {
+    const firstFile = fileArray[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      localStorage.setItem('uploadedMedia', e.target.result);
+      localStorage.setItem('uploadedMediaType', firstFile.type);
+    };
+    reader.readAsDataURL(firstFile);
   }
+}
 </script>
 
 
